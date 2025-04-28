@@ -1,0 +1,141 @@
+[versions]
+#Core
+agp = "8.9.1"
+kotlin = "2.1.20"
+ksp = "2.1.20-1.0.32"
+coreKtx = "1.16.0"
+lifecycleRuntimeKtx = "2.8.7"
+lifecycleViewmodelCompose = "2.8.7"
+
+#Jetpack Compose
+activityCompose = "1.10.1"
+composeBom = "2025.04.01"
+materialKolor = "2.1.1"
+multiplatformMarkdownRendererAndroid = "0.33.0"
+sonner = "0.3.8"
+haze = "1.5.4"
+bobbyespFoundation = "1.0.0-alpha.98eac45"
+
+#More UI
+androidx-paging = "3.3.6"
+
+#Navigation
+androidx-navigation = "2.8.9"
+
+#Coroutines
+kotlinx-coroutines = "1.10.2"
+
+#Serialization and more related
+kotlinx-datetime = "0.6.2"
+kotlinx-serializationJson = "1.8.1"
+kotlinx-collectionsImmutable = "0.3.8"
+
+#Image loading
+landscapistCoil = "2.4.7"
+
+#Network
+ktor = "3.0.2"
+
+#Dependency injection
+koin = "4.0.4"
+
+#Database
+room = "2.7.1"
+
+#Google Services
+googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
+
+#Testing and tooling
+junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+
+#Others
+qrcodeKotlinAndroid = "4.4.1"
+scrollbar = "2.2.0"
+
+[libraries]
+#Core
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
+
+#Jetpack Compose
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-ui-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-material3-windowSizeClass = { group = "androidx.compose.material3", name = "material3-window-size-class" }
+haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
+materialKolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
+sonner = { group = "io.github.dokar3", name = "sonner", version.ref = "sonner" }
+bobbyesp-foundation = { group = "io.github.bobbyesp", name = "foundation", version.ref = "bobbyespFoundation" }
+
+#Markdown
+multiplatform-markdown-renderer-android = { module = "com.mikepenz:multiplatform-markdown-renderer-android", version.ref = "multiplatformMarkdownRendererAndroid" }
+multiplatform-markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "multiplatformMarkdownRendererAndroid" }
+
+#Compose UI Navigation
+compose-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidx-navigation" }
+
+#Image loading
+landscapist-coil = { group = "com.github.skydoves", name = "landscapist-coil", version.ref = "landscapistCoil" }
+
+#Paging3
+paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "androidx-paging" }
+paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "androidx-paging" }
+
+#Kotlin Immutable Collections
+kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinx-collectionsImmutable" }
+
+#Coroutines
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
+
+#Serialization
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serializationJson" }
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
+
+#Dependency injection
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
+
+#Databases
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+room-paging = { group = "androidx.room", name = "room-paging", version.ref = "room" }
+
+#Others
+scrollbar = { group = "com.github.nanihadesuka", name = "LazyColumnScrollbar", version.ref = "scrollbar" }
+qrcode-kotlin-android = { group = "io.github.g0dkar", name = "qrcode-kotlin-android", version.ref = "qrcodeKotlinAndroid" }
+
+#Testing and tooling
+androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+google-android-libraries-mapsplatform-secrets-gradle-plugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "googleAndroidLibrariesMapsplatformSecretsGradlePlugin" }
+
+[bundles]
+core = ["androidx-core-ktx", "androidx-lifecycle-runtime-ktx", "androidx-lifecycle-viewmodel-compose"]
+compose = ["androidx-activity-compose", "androidx-ui", "androidx-ui-graphics", "androidx-material3", "androidx-material3-windowSizeClass" ,"materialKolor", "androidx-ui-icons-extended"]
+paging = ["paging-runtime", "paging-compose"]
+coroutines = ["kotlinx-coroutines-core", "kotlinx-coroutines-android"]
+serialization = ["kotlinx-serialization-json", "kotlinx-datetime"]
+dependencyInjection = ["koin-android", "koin-compose"]
+

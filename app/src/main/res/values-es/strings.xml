@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="max_filesize_exceeded">El archivo excede el tamaño máximo permitido de %1$s bytes</string>
+</resources>
