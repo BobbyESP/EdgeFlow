@@ -10,9 +10,6 @@ sealed interface Route {
         data object HomeNavigator : Route {
             @Serializable
             data object Home : Route
-
-            @Serializable
-            data object Baking : Route
         }
     }
 }

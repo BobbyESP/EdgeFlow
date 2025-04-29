@@ -34,7 +34,7 @@ kotlinx-collectionsImmutable = "0.3.8"
 landscapistCoil = "2.4.7"
 
 #Network
-ktor = "3.0.2"
+ktor = "3.1.2"
 
 #Dependency injection
 koin = "4.0.4"
@@ -98,6 +98,15 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serializationJson" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
+#Ktor
+ktor-android = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor" }
+ktor-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-serialization = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
+ktor-contentnegotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
+ktor-encoding = { group = "io.ktor", name = "ktor-client-encoding", version.ref = "ktor" }
+
 #Dependency injection
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
 koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
@@ -138,4 +147,4 @@ paging = ["paging-runtime", "paging-compose"]
 coroutines = ["kotlinx-coroutines-core", "kotlinx-coroutines-android"]
 serialization = ["kotlinx-serialization-json", "kotlinx-datetime"]
 dependencyInjection = ["koin-android", "koin-compose"]
-
+ktor = ["ktor-android", "ktor-okhttp", "ktor-core", "ktor-serialization", "ktor-logging", "ktor-contentnegotiation", "ktor-encoding"]

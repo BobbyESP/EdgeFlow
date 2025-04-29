@@ -99,6 +99,8 @@ dependencies {
 
     implementation(libs.bundles.dependencyInjection)
 
+    implementation(libs.bundles.ktor)
+
     implementation(libs.bundles.serialization)
 
     implementation(libs.qrcode.kotlin.android)
