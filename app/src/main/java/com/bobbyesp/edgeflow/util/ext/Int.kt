@@ -1,4 +1,4 @@
-package com.bobbyesp.edgeflow.core.util.ext
+package com.bobbyesp.edgeflow.util.ext
 
 val Int.KB: Long
     get() = this * 1024L

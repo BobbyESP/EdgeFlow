@@ -1,4 +1,4 @@
-package com.bobbyesp.edgeflow.core.di
+package com.bobbyesp.edgeflow.di
 
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module

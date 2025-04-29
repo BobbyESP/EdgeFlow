@@ -1,4 +1,4 @@
-package com.bobbyesp.edgeflow.core.presentation.theme
+package com.bobbyesp.edgeflow.presentation.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

@@ -1,4 +1,4 @@
-package com.bobbyesp.edgeflow.core.util
+package com.bobbyesp.edgeflow.util
 
 import java.io.File
 import java.security.MessageDigest

@@ -1,4 +1,4 @@
-package com.bobbyesp.edgeflow.core.presentation.common
+package com.bobbyesp.edgeflow.presentation.common
 
 import android.content.Context
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -57,7 +57,7 @@ fun AppCoreCompositionLocals(
     val config = LocalConfiguration.current
 
     val dynamicThemeState = rememberDynamicMaterialThemeState(
-        style = PaletteStyle.Monochrome,
+        style = PaletteStyle.TonalSpot,
         seedColor = Color(0xFF080808),
         isDark = isSystemInDarkTheme()
     )

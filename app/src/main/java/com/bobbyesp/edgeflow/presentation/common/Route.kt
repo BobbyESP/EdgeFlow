@@ -1,4 +1,4 @@
-package com.bobbyesp.edgeflow.core.presentation.common
+package com.bobbyesp.edgeflow.presentation.common
 
 import kotlinx.serialization.Serializable
 

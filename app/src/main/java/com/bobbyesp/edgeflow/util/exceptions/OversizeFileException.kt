@@ -1,3 +1,3 @@
-package com.bobbyesp.edgeflow.core.util.exceptions
+package com.bobbyesp.edgeflow.util.exceptions
 
 class OversizeFileException(message: String) : Exception(message)

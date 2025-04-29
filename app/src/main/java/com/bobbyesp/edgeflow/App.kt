@@ -1,7 +1,7 @@
 package com.bobbyesp.edgeflow
 
 import android.app.Application
-import com.bobbyesp.edgeflow.core.di.serializationModule
+import com.bobbyesp.edgeflow.di.serializationModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin

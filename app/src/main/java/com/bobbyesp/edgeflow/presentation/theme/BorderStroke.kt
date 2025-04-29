@@ -1,4 +1,4 @@
-package com.bobbyesp.edgeflow.core.presentation.theme
+package com.bobbyesp.edgeflow.presentation.theme
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.MaterialTheme

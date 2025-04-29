@@ -1,4 +1,4 @@
-package com.bobbyesp.edgeflow.core.util
+package com.bobbyesp.edgeflow.util
 
 import android.content.Context
 import androidx.compose.runtime.Composable

@@ -1,4 +1,4 @@
-package com.bobbyesp.edgeflow.core.presentation
+package com.bobbyesp.edgeflow.presentation
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -8,8 +8,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.navigation
 import com.bobbyesp.foundation.ui.motion.animatedComposable
-import com.bobbyesp.edgeflow.core.presentation.common.LocalNavController
-import com.bobbyesp.edgeflow.core.presentation.common.Route
+import com.bobbyesp.edgeflow.presentation.common.LocalNavController
+import com.bobbyesp.edgeflow.presentation.common.Route
 
 @Composable
 fun Navigation(

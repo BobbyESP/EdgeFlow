@@ -1,10 +1,10 @@
-package com.bobbyesp.edgeflow.core.util.ext
+package com.bobbyesp.edgeflow.util.ext
 
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import com.bobbyesp.edgeflow.R
-import com.bobbyesp.edgeflow.core.util.exceptions.OversizeFileException
+import com.bobbyesp.edgeflow.util.exceptions.OversizeFileException
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
