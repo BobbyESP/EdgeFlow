@@ -1,11 +1,9 @@
 package com.bobbyesp.edgeflow.presentation.common
 
 import android.content.Context
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -13,11 +11,11 @@ import androidx.navigation.compose.rememberNavController
 import coil.ImageLoader
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
+import com.bobbyesp.edgeflow.presentation.theme.ThemeManager
+import com.bobbyesp.edgeflow.util.ext.MB
 import com.dokar.sonner.ToasterState
 import com.dokar.sonner.rememberToasterState
 import com.materialkolor.DynamicMaterialThemeState
-import com.materialkolor.PaletteStyle
-import com.materialkolor.rememberDynamicMaterialThemeState
 import com.skydoves.landscapist.coil.LocalCoilImageLoader
 import kotlinx.coroutines.Dispatchers
 
@@ -25,12 +23,13 @@ val LocalDynamicThemeState =
     compositionLocalOf<DynamicMaterialThemeState> { error("No theme state provided") }
 val LocalOrientation = compositionLocalOf<Int> { error("No orientation provided") }
 val LocalNavController =
-    compositionLocalOf<NavHostController> { error("No nav controller provided") }
+    compositionLocalOf<NavHostController> { error("No navigation controller has been provided") }
 val LocalSonner = compositionLocalOf<ToasterState> { error("No Sonner instance provided") }
 
 @Composable
 fun AppCoreCompositionLocals(
     context: Context = LocalContext.current,
+    themeManager: ThemeManager = ThemeManager(context),
     content: @Composable () -> Unit
 ) {
     val navController = rememberNavController()
@@ -44,23 +43,19 @@ fun AppCoreCompositionLocals(
         .diskCache {
             DiskCache.Builder()
                 .directory(context.cacheDir.resolve("image_cache"))
-                .maxSizeBytes(7 * 1024 * 1024)
+                .maxSizeBytes(32.MB)
                 .build()
         }
         .respectCacheHeaders(false)
         .allowHardware(true)
         .crossfade(true)
-        .bitmapFactoryMaxParallelism(12)
+        .bitmapFactoryMaxParallelism(6)
         .dispatcher(Dispatchers.IO)
         .build()
 
     val config = LocalConfiguration.current
 
-    val dynamicThemeState = rememberDynamicMaterialThemeState(
-        style = PaletteStyle.TonalSpot,
-        seedColor = Color(0xFF080808),
-        isDark = isSystemInDarkTheme()
-    )
+    val dynamicThemeState = themeManager.dynamicThemeState
 
     val sonner = rememberToasterState()
 

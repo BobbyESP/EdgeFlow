@@ -87,6 +87,7 @@ dependencies {
     implementation(libs.multiplatform.markdown.renderer.android)
     implementation(libs.multiplatform.markdown.renderer.m3)
     implementation(libs.bobbyesp.foundation)
+    implementation(libs.splashscreen)
 
     implementation(libs.compose.navigation)
 
@@ -102,6 +103,7 @@ dependencies {
     implementation(libs.bundles.ktor)
 
     implementation(libs.bundles.serialization)
+    implementation(libs.xmlutil)
 
     implementation(libs.qrcode.kotlin.android)
 
