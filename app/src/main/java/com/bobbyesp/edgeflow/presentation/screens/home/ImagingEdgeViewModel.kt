@@ -3,13 +3,12 @@ package com.bobbyesp.edgeflow.presentation.screens.home
 import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bobbyesp.edgeflow.BuildConfig
+import com.bobbyesp.imagingedge.ImagingEdgeClient
 import com.bobbyesp.imagingedge.ImagingEdgeConfig
-import com.bobbyesp.imagingedge.data.remote.DefaultCameraRepository
 import com.bobbyesp.imagingedge.domain.DownloadProgressListener
 import com.bobbyesp.imagingedge.domain.DownloadSize
 import com.bobbyesp.imagingedge.domain.model.DirectoryEntry
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.android.Android
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -32,25 +31,22 @@ class ImagingEdgeViewModel : ViewModel() {
         ip = "192.168.122.1", port = 64321, outputDir = File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
             "ImagingEdgeDemo"
-        ), debug = true, downloadSize = DownloadSize.BEST
+        ), debug = BuildConfig.DEBUG, downloadSize = DownloadSize.BEST
     )
-    private val httpClient = HttpClient(Android)
-    private val repository = DefaultCameraRepository(
-        config, httpClient
-    )
+    private val client = ImagingEdgeClient(config)
 
     // Load directory entries from camera, tries PushRoot then PhotoRoot
     fun loadEntries() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(loading = true, error = null)
             try {
-                repository.startTransfer()
+                client.connect()
                 val entries = try {
-                    repository.getDirectoryContent("PushRoot")
+                    client.listDirectory("PushRoot")
                 } catch (_: Exception) {
-                    repository.getDirectoryContent("PhotoRoot")
+                    client.listDirectory("PhotoRoot")
                 }
-                repository.endTransfer()
+                client.disconnect()
                 _uiState.value = _uiState.value.copy(entries = entries, loading = false)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(error = e.localizedMessage, loading = false)
@@ -64,10 +60,10 @@ class ImagingEdgeViewModel : ViewModel() {
             _uiState.value =
                 _uiState.value.copy(loading = true, error = null, downloadProgress = 0f)
             try {
-                repository.downloadImage(
+                client.downloadImage(
                     entry,
                     config.downloadSize,
-                    listener = object : DownloadProgressListener {
+                    downloadProgressListener = object : DownloadProgressListener {
                         override fun onProgress(bytesRead: Long, total: Long) {
                             val progress = if (total > 0) bytesRead.toFloat() / total else 0f
                             _uiState.value = _uiState.value.copy(downloadProgress = progress)
