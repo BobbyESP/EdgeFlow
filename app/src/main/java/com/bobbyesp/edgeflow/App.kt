@@ -3,7 +3,7 @@ package com.bobbyesp.edgeflow
 import android.app.Application
 import com.bobbyesp.edgeflow.di.ktorModule
 import com.bobbyesp.edgeflow.di.serializationModule
-import com.bobbyesp.edgeflow.di.uiModule
+import com.bobbyesp.edgeflow.di.coreModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -13,7 +13,7 @@ class App : Application() {
         startKoin {
             androidLogger()
             androidContext(this@App)
-            modules(uiModule)
+            modules(coreModule)
             modules(serializationModule)
             modules(ktorModule)
         }

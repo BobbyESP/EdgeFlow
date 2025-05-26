@@ -1,13 +1,17 @@
 package com.bobbyesp.edgeflow.presentation.theme
 
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextDirection
 import com.materialkolor.DynamicMaterialTheme
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun EdgeFlowTheme(
     themeManager: ThemeManager,
@@ -20,9 +24,10 @@ fun EdgeFlowTheme(
         )
     ) {
         if (themeManager.dynamicColorScheme != null) {
-            MaterialTheme(
+            MaterialExpressiveTheme(
                 colorScheme = themeManager.dynamicColorScheme!!,
                 shapes = AppShapes,
+                motionScheme = MotionScheme.expressive(),
                 //typography = Typography,
                 content = content
             )

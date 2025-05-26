@@ -1,0 +1,35 @@
+imagingedge/                       ← módulo Kotlin (Android/Kotlin Library)
+│
+├── ImagingEdgeConfig.kt           ← Data class de configuración (IP, puerto, directorio, tamaño)
+├── ImagingEdgeClient.kt           ← Fachada pública que orquesta la sincronización
+│
+├── domain/                        ← Capa de dominio (contratos, modelos puros)
+│   ├── model/
+│   │   ├── ImageFile.kt           ← data class (name, url, resolution, size)
+│   │   └── DirectoryEntry.kt      ← data class (id, title, isDirectory)
+│   │
+│   └── repository/
+│       └── CameraRepository.kt    ← interface con métodos suspend: getServiceInfo, startTransfer, endTransfer, getDirectoryContent…
+│
+├── data/                          ← Capa de datos (implementaciones concretas)
+│   ├── remote/
+│   │   ├── service/
+│   │   │   ├── PushService.kt     ← Inicia/termina transferencia (SOAP /upnp/control/XPushList)
+│   │   │   └── ContentService.kt  ← Explora directorios y parsea XML embebido (usa xmlutil)
+│   │   │
+│   │   ├── parser/
+│   │   │   └── SoapResponseParser.kt  ← Extrae el inner XML de <Result> del XML SOAP
+│   │   │
+│   │   └── downloader/
+│   │       └── FileDownloader.kt  ← Descarga por chunks, verifica tamaños, notifica progreso
+│   │
+│   ├── local/
+│   │   ├── DirectoryManager.kt    ← Helpers para crear carpetas y comprobar archivos existentes
+│   │   ├── PreferencesStore.kt     ← (opcional) guarda IP/puerto/última sincronización con DataStore
+│   │   └── fake/
+│   │       └── FakeCameraRepository.kt  ← Implementación mock de CameraRepository para tests
+│   │
+│   └── DefaultCameraRepository.kt ← Implementa CameraRepository, orquesta PushService, ContentService y FileDownloader
+│
+└── presentation/                  ← (opcional) capa para notificaciones Android
+    └── NotificationHandler.kt     ← Envía notificaciones con NotificationManager o callbacks de progreso

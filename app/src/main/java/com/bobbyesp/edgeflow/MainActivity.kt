@@ -12,14 +12,17 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.bobbyesp.edgeflow.presentation.Navigation
 import com.bobbyesp.edgeflow.presentation.common.AppCoreCompositionLocals
+import com.bobbyesp.edgeflow.presentation.common.routing.TopLevelBackStack
 import com.bobbyesp.edgeflow.presentation.theme.EdgeFlowTheme
 import com.bobbyesp.edgeflow.presentation.theme.ThemeManager
 import org.koin.android.ext.android.inject
 import org.koin.compose.KoinContext
+import kotlin.getValue
 
 class MainActivity : ComponentActivity() {
 
     val themeManager by inject<ThemeManager>()
+    val topLevelBackStack by inject<TopLevelBackStack<Any>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -39,7 +42,9 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxSize()
                                 .background(MaterialTheme.colorScheme.background),
                         ) {
-                            Navigation()
+                            Navigation(
+                                topLevelBackStack = topLevelBackStack
+                            )
                         }
                     }
                 }

@@ -78,6 +78,7 @@ secrets {
 dependencies {
     implementation(libs.bundles.core)
     implementation(libs.bundles.coroutines)
+    implementation(project(":imagingedge"))
 
     implementation(libs.bundles.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -89,7 +90,7 @@ dependencies {
     implementation(libs.bobbyesp.foundation)
     implementation(libs.splashscreen)
 
-    implementation(libs.compose.navigation)
+    implementation(libs.bundles.nav3)
 
     implementation(libs.landscapist.coil)
 

@@ -17,12 +17,22 @@ class ThemeManager(
     private val context: Context
 ) {
 
+    /**
+     * --- AI Generated ---
+     * No es necesario usar valores mutables aquí si los valores no van a cambiar durante la vida de la instancia de ThemeManager.
+     * Sin embargo, si planeas permitir que el usuario cambie el tema, el color semilla, o la preferencia de tema oscuro en tiempo de ejecución,
+     * deberías usar propiedades mutables (var) o estados observables (por ejemplo, MutableState de Compose) para que los cambios se reflejen en la UI.
+     *
+     * Actualmente, todos los valores son val, lo que significa que son inmutables después de la inicialización.
+     * Si necesitas que sean reactivos o modificables, considera usar var o un patrón de estado observable
+     */
+
     val currentPaletteStyle: PaletteStyle = PaletteStyle.Expressive
     val currentSeedColor: Color = Color(0xFFA11111)
     val currentDarkThemePreference: DarkThemePreference =
         DarkThemePreference() //Default should be some settings saved by the user
 
-    private val userWantsDynamicColor: Boolean = false //TODO: Retrieve from Settings
+    private val userWantsDynamicColor: Boolean = true //TODO: Retrieve from Settings
 
     val isDynamicColorEnabled: Boolean
         get() = userWantsDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
