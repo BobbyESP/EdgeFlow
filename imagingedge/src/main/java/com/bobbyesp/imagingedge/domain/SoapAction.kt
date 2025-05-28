@@ -25,7 +25,7 @@ enum class SoapAction(
     TRANSFER_END(
         TransferProtocol.SONY,
         "XPushList",
-        "X_TransferStop"
+        "X_TransferEnd"
     ),
     CONTENT_DIRECTORY(
         TransferProtocol.UPNP,

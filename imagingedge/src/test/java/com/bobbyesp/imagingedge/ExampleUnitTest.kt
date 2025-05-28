@@ -1,5 +1,12 @@
 package com.bobbyesp.imagingedge
 
+import com.bobbyesp.imagingedge.data.remote.model.BrowseResponse
+import com.bobbyesp.imagingedge.data.remote.model.Container
+import com.bobbyesp.imagingedge.data.remote.model.SoapBody
+import com.bobbyesp.imagingedge.data.remote.model.SoapEnvelope
+import com.bobbyesp.imagingedge.data.remote.model.TransferStartResponse
+import kotlinx.serialization.encodeToString
+import nl.adaptivity.xmlutil.serialization.XML
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -11,7 +18,19 @@ import org.junit.Assert.*
  */
 class ExampleUnitTest {
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun testXmlEncoding() {
+        val xmlEncoder = XML { }
+
+        val result = xmlEncoder.encodeToString(
+            SoapEnvelope(
+                encodingStyle = "miau", Body = SoapBody(
+                    Container(
+                        id = "123", parentID = "0", restricted = false, title = "Test Container"
+                    )
+                )
+            )
+        )
+
+        println(result)
     }
 }

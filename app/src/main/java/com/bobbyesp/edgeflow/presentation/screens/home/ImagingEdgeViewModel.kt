@@ -1,6 +1,7 @@
 package com.bobbyesp.edgeflow.presentation.screens.home
 
 import android.os.Environment
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bobbyesp.edgeflow.BuildConfig
@@ -20,7 +21,8 @@ class ImagingEdgeViewModel : ViewModel() {
         val entries: List<DirectoryEntry> = emptyList(),
         val loading: Boolean = false,
         val error: String? = null,
-        val downloadProgress: Float? = null
+        val downloadProgress: Float? = null,
+        val connected: Boolean = false
     )
 
     private val _uiState = MutableStateFlow(UiState())
@@ -31,7 +33,7 @@ class ImagingEdgeViewModel : ViewModel() {
         ip = "192.168.122.1", port = 64321, outputDir = File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
             "ImagingEdgeDemo"
-        ), debug = BuildConfig.DEBUG, downloadSize = DownloadSize.BEST
+        ), debug = true, downloadSize = DownloadSize.LRG
     )
     private val client = ImagingEdgeClient(config)
 
@@ -41,14 +43,15 @@ class ImagingEdgeViewModel : ViewModel() {
             _uiState.value = _uiState.value.copy(loading = true, error = null)
             try {
                 client.connect()
+                _uiState.value = _uiState.value.copy(connected = true)
                 val entries = try {
                     client.listDirectory("PushRoot")
                 } catch (_: Exception) {
                     client.listDirectory("PhotoRoot")
                 }
-                client.disconnect()
                 _uiState.value = _uiState.value.copy(entries = entries, loading = false)
             } catch (e: Exception) {
+                Log.e("ImagingEdgeViewModel", "Error loading entries. ${e.localizedMessage}")
                 _uiState.value = _uiState.value.copy(error = e.localizedMessage, loading = false)
             }
         }
@@ -75,6 +78,16 @@ class ImagingEdgeViewModel : ViewModel() {
                     error = e.localizedMessage, loading = false, downloadProgress = null
                 )
             }
+        }
+    }
+
+    suspend fun disconnect() {
+        try {
+            client.disconnect()
+            _uiState.value = _uiState.value.copy(connected = false)
+        } catch (e: Exception) {
+            Log.e("ImagingEdgeViewModel", "Error disconnecting. ${e.localizedMessage}")
+            _uiState.value = _uiState.value.copy(error = e.localizedMessage)
         }
     }
 }

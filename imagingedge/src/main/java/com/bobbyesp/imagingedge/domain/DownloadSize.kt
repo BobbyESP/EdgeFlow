@@ -6,6 +6,5 @@ package com.bobbyesp.imagingedge.domain
  * - `LRG`: Large size.
  * - `SM`: Small size.
  * - `TN`: Thumbnail size.
- * - `BEST`: Best available size.
  */
-enum class DownloadSize { LRG, SM, TN, BEST }
+enum class DownloadSize { LRG, SM, TN; }

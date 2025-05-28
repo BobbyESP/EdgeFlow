@@ -7,7 +7,7 @@ import com.bobbyesp.imagingedge.domain.model.DirectoryEntry
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
-import com.bobbyesp.imagingedge.data.remote.downloader.DownloadException
+import com.bobbyesp.imagingedge.data.remote.downloader.exceptions.DownloadException
 import com.bobbyesp.imagingedge.domain.DownloadProgressListener
 
 class ImagingEdgeClient(

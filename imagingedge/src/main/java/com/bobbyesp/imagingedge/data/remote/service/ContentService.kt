@@ -6,17 +6,17 @@ import com.bobbyesp.imagingedge.data.remote.model.DIDLLite
 import com.bobbyesp.imagingedge.data.remote.model.Item
 import com.bobbyesp.imagingedge.data.remote.parser.SoapResponseParser
 import com.bobbyesp.imagingedge.domain.DownloadSize
+import com.bobbyesp.imagingedge.domain.SoapAction
 import com.bobbyesp.imagingedge.domain.model.DirectoryEntry
 import com.bobbyesp.imagingedge.domain.model.ImageFile
-import com.bobbyesp.imagingedge.domain.SoapAction
 import io.ktor.client.HttpClient
-import io.ktor.client.request.post
 import io.ktor.client.request.header
+import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
+import io.ktor.client.utils.EmptyContent.contentType
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import nl.adaptivity.xmlutil.serialization.XML
 
 /**
  * Service to browse UPnP ContentDirectory and map results to domain models.
@@ -25,11 +25,12 @@ import nl.adaptivity.xmlutil.serialization.XML
  * @param httpClient  Preconfigured Ktor HTTP client.
  */
 class ContentService(
-    private val config: ImagingEdgeConfig,
-    private val httpClient: HttpClient
+    config: ImagingEdgeConfig, httpClient: HttpClient
+) : CameraService(
+    config = config, httpClient = httpClient
 ) {
-    private val xmlParser = XML { /* default xmlutil settings */ }
-    private val serviceUrl = "${config.baseUrl}/upnp/control/ContentDirectory"
+    private val servicePath = "upnp/control/ContentDirectory"
+    private val serviceUrl = "${config.baseUrl}/$servicePath"
 
     /**
      * Browse a directory by its [objectId], returning a list of [DirectoryEntry].
@@ -40,11 +41,10 @@ class ContentService(
      * @return List of parsed directory entries (folders and items).
      */
     suspend fun browseDirectory(
-        objectId: String,
-        startIndex: Int = 0,
-        preferredSize: DownloadSize? = null
+        objectId: String, startIndex: Int = 0, preferredSize: DownloadSize? = null
     ): List<DirectoryEntry> {
         // 1) Build and send SOAP request
+        //TODO: Use the callSoap method from CameraService
         val envelope = buildBrowseEnvelope(objectId, startIndex)
         val soapResponse = httpClient.post(serviceUrl) {
             header("SOAPACTION", "\"${SoapAction.CONTENT_DIRECTORY}\"")
@@ -66,12 +66,16 @@ class ContentService(
         // 4) Map DTOs to domain entries
         return mutableListOf<DirectoryEntry>().apply {
             didl.container?.forEach { add(it.toDirectoryEntry(isDirectory = true)) }
-            didl.item?.forEach { add(it.toDirectoryEntry(isDirectory = false)) }
+            didl.item?.filter { item ->
+                preferredSize == null || item.res.any { res ->
+                    res.protocolInfo?.contains("_${preferredSize.name}") == true
+                }
+            }?.forEach { add(it.toDirectoryEntry(isDirectory = false)) }
         }
     }
 
     /**
-     * Selects the best [ImageFile] representation from a [DirectoryEntry.item].
+     * Selects the best [ImageFile] representation from a [DirectoryEntry].
      *
      * @param entry         The directory entry containing an [Item] DTO.
      * @param preferredSize Preferred [DownloadSize], or null for best available.
@@ -83,14 +87,12 @@ class ContentService(
             ?: throw IllegalArgumentException("Entry ${entry.id} does not contain an Item DTO")
 
         // Choose candidate list based on preferredSize, then pick largest
-        val chosenRes = item.res
-            .let { resolutions ->
-                preferredSize?.let { size ->
-                    resolutions
-                        .filter { it.protocolInfo?.contains("_${size.name}") == true }
-                        .maxByOrNull { it.size ?: 0 }
-                } ?: resolutions.maxByOrNull { it.size ?: 0 }
-            } ?: throw IllegalStateException("No resolutions for ${entry.title}")
+        val chosenRes = item.res.let { resolutions ->
+            preferredSize?.let { size ->
+                resolutions.filter { it.protocolInfo?.contains("_${size.name}") == true }
+                    .maxByOrNull { it.size ?: 0 }
+            } ?: resolutions.maxByOrNull { it.size ?: 0 }
+        } ?: throw IllegalStateException("No resolutions for ${entry.title}")
 
         return ImageFile(
             name = entry.title,

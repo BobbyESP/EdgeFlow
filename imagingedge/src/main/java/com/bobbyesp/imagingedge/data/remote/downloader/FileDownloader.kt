@@ -1,6 +1,8 @@
 package com.bobbyesp.imagingedge.data.remote.downloader
 
 import android.util.Log
+import com.bobbyesp.imagingedge.data.remote.downloader.exceptions.DownloadException
+import com.bobbyesp.imagingedge.data.remote.downloader.exceptions.SizeMismatchException
 import com.bobbyesp.imagingedge.domain.DownloadProgressListener
 import com.bobbyesp.imagingedge.domain.model.ImageFile
 import io.ktor.client.HttpClient
@@ -15,8 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-
-import com.bobbyesp.imagingedge.data.remote.downloader.DownloadException
 
 class FileDownloader(
     private val outputRootDir: File,
@@ -80,9 +80,9 @@ class FileDownloader(
                 }
 
                 if (contentLength > 0 && totalRead != contentLength) {
-                    Log.d(
-                        this@FileDownloader::class.simpleName,
-                        "⚠️ Bytes received do not match expected size: $totalRead <> $contentLength"
+                    throw SizeMismatchException(
+                        expectedSize = contentLength,
+                        actualSize = totalRead
                     )
                 }
             }

@@ -11,7 +11,7 @@ import com.bobbyesp.imagingedge.domain.repository.CameraRepository
 import io.ktor.client.HttpClient
 import java.io.File
 import com.bobbyesp.imagingedge.domain.DownloadProgressListener
-import com.bobbyesp.imagingedge.data.remote.downloader.DownloadException
+import com.bobbyesp.imagingedge.data.remote.downloader.exceptions.DownloadException
 
 /**
  * Default implementation of [CameraRepository] combining push, content browsing,
@@ -48,8 +48,8 @@ class DefaultCameraRepository(
     /**
      * Browses the contents of a UPnP directory.
      *
-     * @param dirId        The UPnP container ID.
-     * @param downloadSize Preferred image size for potential future use.
+     * @param dirId        The UPnP container ID
+     * @param downloadSize Preferred image size
      * @return List of directory entries (folders and items).
      */
     @Suppress("UNUSED_PARAMETER")
@@ -58,7 +58,7 @@ class DefaultCameraRepository(
         downloadSize: DownloadSize?
     ): List<DirectoryEntry> {
         val preferred = downloadSize ?: config.downloadSize
-        return contentService.browseDirectory(objectId = dirId)
+        return contentService.browseDirectory(objectId = dirId, preferredSize = preferred)
     }
 
     /**

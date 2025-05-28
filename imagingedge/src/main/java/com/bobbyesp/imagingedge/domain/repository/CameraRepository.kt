@@ -3,7 +3,7 @@ package com.bobbyesp.imagingedge.domain.repository
 import com.bobbyesp.imagingedge.domain.DownloadProgressListener
 import com.bobbyesp.imagingedge.domain.DownloadSize
 import com.bobbyesp.imagingedge.domain.model.DirectoryEntry
-import com.bobbyesp.imagingedge.data.remote.downloader.DownloadException
+import com.bobbyesp.imagingedge.data.remote.downloader.exceptions.DownloadException
 import java.io.File
 
 interface CameraRepository {
