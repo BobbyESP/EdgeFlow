@@ -1,5 +1,6 @@
-package com.bobbyesp.imagingedge.data.remote.model
+package com.bobbyesp.imagingedge.data.remote.model.browse
 
+import com.bobbyesp.imagingedge.data.remote.model.Res
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
@@ -15,14 +16,14 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
  * @property upnpClass The UPnP class of the item, indicating its type (e.g., "object.item.imageItem").
  * @property contentType The specific content type of the item, often a MIME type (e.g., "image/jpeg"). This uses the Sony AV namespace.
  * @property date The date associated with the item, typically its creation or modification date. Corresponds to the Dublin Core "date" element.
- * @property res A list of [Res] objects, representing the resources associated with this item (e.g., different versions or resolutions of a media file).
+ * @property res A list of [com.bobbyesp.imagingedge.data.remote.model.Res] objects, representing the resources associated with this item (e.g., different versions or resolutions of a media file).
  */
 @Serializable
 @XmlSerialName("item", "urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/", "")
 data class Item(
     @XmlElement(false) val id: String,
-    @XmlElement(false) val parentID: String,
     @XmlElement(false) val restricted: Boolean,
+    @XmlElement(false) val parentID: String,
 
     @XmlElement @XmlSerialName("title", "http://purl.org/dc/elements/1.1/", "dc")
     val title: String,
@@ -36,6 +37,6 @@ data class Item(
     @XmlElement @XmlSerialName("date", "http://purl.org/dc/elements/1.1/", "dc")
     val date: String,
 
-    @XmlElement(true) @XmlSerialName("res", "urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/", "")
+    @XmlElement @XmlSerialName("res", "urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/", "")
     val res: List<Res>
 )

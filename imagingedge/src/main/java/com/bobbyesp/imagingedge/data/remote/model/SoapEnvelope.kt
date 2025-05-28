@@ -14,17 +14,12 @@ data class SoapEnvelope<T>(
     @XmlElement(false)
     @XmlSerialName(
         value = "encodingStyle",
-        namespace = "http://schemas.xmlsoap.org/soap/envelope/",
+        namespace = "",
         prefix = "s"
     )
-    val encodingStyle: String? = null,
+    val encodingStyle: String = "http://schemas.xmlsoap.org/soap/encoding/",
 
-    @XmlElement(true)
-    @XmlSerialName(
-        value = "Body",
-        namespace = "http://schemas.xmlsoap.org/soap/envelope/",
-        prefix = "s"
-    )
+    @XmlElement
     val Body: SoapBody<T>
 )
 
@@ -35,6 +30,6 @@ data class SoapEnvelope<T>(
     prefix = "s"
 )
 data class SoapBody<T>(
-    @XmlElement(true)
+    @XmlElement
     val content: T
 )

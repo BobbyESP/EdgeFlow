@@ -1,52 +1,22 @@
 package com.bobbyesp.imagingedge.domain
 
-/**
- * Represents a SOAP action that can be performed on a device.
- *
- * Each SOAP action has a [protocol], [service], and [action] associated with it.
- * The [toString] method returns a string representation of the SOAP action, which can be used in a SOAP request.
- *
- * Example:
- * ```kotlin
- * val soapAction = SoapAction.TRANSFER_START
- * println(soapAction) // "urn:schemas-sony-com:service:XPushList:1#X_TransferStart"
- * ```
- */
-enum class SoapAction(
-    val protocol: TransferProtocol,
+sealed class SoapAction(
+    val protocolTemplate: String,
     val service: String,
-    val action: String,
+    val actionName: String
 ) {
-    TRANSFER_START(
-        TransferProtocol.SONY,
-        "XPushList",
-        "X_TransferStart"
-    ),
-    TRANSFER_END(
-        TransferProtocol.SONY,
-        "XPushList",
-        "X_TransferEnd"
-    ),
-    CONTENT_DIRECTORY(
-        TransferProtocol.UPNP,
-        "ContentDirectory",
-        "Browse"
-    );
+    val namespace: String
+        get() = "urn:$protocolTemplate:service:$service:1"
+    val action: String
+        get() = actionName
 
-    override fun toString(): String {
-        return build(protocol.template, service, action)
-    }
+    data object TRANSFER_START : SoapAction(TransferProtocol.SONY.template, "XPushList", "X_TransferStart")
+    data object TRANSFER_END  : SoapAction(TransferProtocol.SONY.template, "XPushList", "X_TransferEnd")
+    data object CONTENT_DIRECTORY : SoapAction(TransferProtocol.UPNP.template, "ContentDirectory", "Browse")
 
-    fun toString(skipAction: Boolean = true): String {
-        return build(protocol.template, service, if (skipAction) null else action)
-    }
-
-    companion object {
-        fun build(
-            protocol: String,
-            service: String,
-            action: String?,
-        ) =
-            "urn:$protocol:service:$service:1${action?.let { "#$it" } ?: ""}"
-    }
+    class Custom(
+        protocolTemplate: String,
+        service: String,
+        actionName: String
+    ) : SoapAction(protocolTemplate, service, actionName)
 }

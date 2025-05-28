@@ -2,21 +2,13 @@ package com.bobbyesp.imagingedge.data.remote.service
 
 import com.bobbyesp.imagingedge.ImagingEdgeConfig
 import com.bobbyesp.imagingedge.data.remote.model.Container
-import com.bobbyesp.imagingedge.data.remote.model.DIDLLite
-import com.bobbyesp.imagingedge.data.remote.model.Item
-import com.bobbyesp.imagingedge.data.remote.parser.SoapResponseParser
+import com.bobbyesp.imagingedge.data.remote.model.browse.BrowseResponse
+import com.bobbyesp.imagingedge.data.remote.model.browse.Item
+import com.bobbyesp.imagingedge.data.remote.soap.requests.BrowseDirectoryRequest
 import com.bobbyesp.imagingedge.domain.DownloadSize
-import com.bobbyesp.imagingedge.domain.SoapAction
 import com.bobbyesp.imagingedge.domain.model.DirectoryEntry
 import com.bobbyesp.imagingedge.domain.model.ImageFile
 import io.ktor.client.HttpClient
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
-import io.ktor.client.utils.EmptyContent.contentType
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
 
 /**
  * Service to browse UPnP ContentDirectory and map results to domain models.
@@ -30,7 +22,6 @@ class ContentService(
     config = config, httpClient = httpClient
 ) {
     private val servicePath = "upnp/control/ContentDirectory"
-    private val serviceUrl = "${config.baseUrl}/$servicePath"
 
     /**
      * Browse a directory by its [objectId], returning a list of [DirectoryEntry].
@@ -44,24 +35,26 @@ class ContentService(
         objectId: String, startIndex: Int = 0, preferredSize: DownloadSize? = null
     ): List<DirectoryEntry> {
         // 1) Build and send SOAP request
-        //TODO: Use the callSoap method from CameraService
-        val envelope = buildBrowseEnvelope(objectId, startIndex)
-        val soapResponse = httpClient.post(serviceUrl) {
-            header("SOAPACTION", "\"${SoapAction.CONTENT_DIRECTORY}\"")
-            contentType(ContentType.Text.Xml)
-            setBody(envelope)
-        }.bodyAsText(Charsets.UTF_8)
+//        val envelope = soapBodyBuilder.buildSoapBody(
+//            Browse(
+//                objectId = objectId,
+//                browseFlag = "BrowseDirectChildren",
+//                filter = "*",
+//                startingIndex = startIndex,
+//                requestedCount = 100, // Default page size
+//            )
+//        )
+        val soapResponse = callSoap(
+            path = servicePath,
+            request = BrowseDirectoryRequest(
+                objectId = objectId,
+                startingIndex = startIndex,
+                requestedCount = 100
+            )
+        )
 
-        if (config.debug) println("SOAP Response:\n$soapResponse")
-
-        // 2) Extract and unescape inner <Result> XML
-        val innerEscaped = SoapResponseParser.extractInnerXml(soapResponse)
-        val innerXml = SoapResponseParser.unescapeXml(innerEscaped)
-
-        if (config.debug) println("Inner DIDL XML:\n$innerXml")
-
-        // 3) Decode to our DTO
-        val didl = xmlParser.decodeFromString(DIDLLite.serializer(), innerXml)
+        val response = xmlParser.decodeFromString(BrowseResponse.serializer(), soapResponse)
+        val didl = response.Result
 
         // 4) Map DTOs to domain entries
         return mutableListOf<DirectoryEntry>().apply {
@@ -101,25 +94,6 @@ class ContentService(
             resolution = chosenRes.resolution
         )
     }
-
-    /**
-     * Builds the SOAP envelope for a Browse action.
-     */
-    private fun buildBrowseEnvelope(objectId: String, startIndex: Int): String = """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
-            <s:Body>
-                <u:Browse xmlns:u="urn:schemas-upnp-org:service:ContentDirectory:1">
-                    <ObjectID>$objectId</ObjectID>
-                    <BrowseFlag>BrowseDirectChildren</BrowseFlag>
-                    <Filter>*</Filter>
-                    <StartingIndex>$startIndex</StartingIndex>
-                    <RequestedCount>9999</RequestedCount>
-                    <SortCriteria></SortCriteria>
-                </u:Browse>
-            </s:Body>
-        </s:Envelope>
-    """.trimIndent()
 
     /**
      * Extension to map [Container] or [Item] DTO to [DirectoryEntry].

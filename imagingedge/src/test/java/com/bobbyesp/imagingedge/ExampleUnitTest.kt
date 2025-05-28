@@ -1,15 +1,13 @@
 package com.bobbyesp.imagingedge
 
-import com.bobbyesp.imagingedge.data.remote.model.BrowseResponse
 import com.bobbyesp.imagingedge.data.remote.model.Container
 import com.bobbyesp.imagingedge.data.remote.model.SoapBody
 import com.bobbyesp.imagingedge.data.remote.model.SoapEnvelope
-import com.bobbyesp.imagingedge.data.remote.model.TransferStartResponse
+import com.bobbyesp.imagingedge.data.remote.soap.SoapBodyBuilder
+import com.bobbyesp.imagingedge.data.remote.soap.requests.TransferStartRequest
 import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.serialization.XML
 import org.junit.Test
-
-import org.junit.Assert.*
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -32,5 +30,15 @@ class ExampleUnitTest {
         )
 
         println(result)
+    }
+
+    @Test
+    fun locura() {
+        val xmlParser = XML { /* configure if needed */ }
+        val soapBodyBuilder = SoapBodyBuilder(xmlParser)
+
+        val envelopeXml = soapBodyBuilder.buildSoapBody(TransferStartRequest)
+
+        println(envelopeXml)
     }
 }

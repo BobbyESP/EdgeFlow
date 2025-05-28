@@ -1,9 +1,8 @@
 package com.bobbyesp.imagingedge.data.remote.service
 
 import com.bobbyesp.imagingedge.ImagingEdgeConfig
-import com.bobbyesp.imagingedge.data.remote.model.TransferEndResponse
-import com.bobbyesp.imagingedge.data.remote.model.TransferStartResponse
-import com.bobbyesp.imagingedge.domain.SoapAction
+import com.bobbyesp.imagingedge.data.remote.soap.requests.TransferEndRequest
+import com.bobbyesp.imagingedge.data.remote.soap.requests.TransferStartRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
@@ -48,8 +47,7 @@ class PushService(
     suspend fun startTransfer() {
         callSoap(
             path = servicePath,
-            action = SoapAction.TRANSFER_START,
-            bodyContent = null
+            request = TransferStartRequest
         )
     }
 
@@ -60,9 +58,7 @@ class PushService(
      */
     suspend fun endTransfer() {
         callSoap(
-            path = servicePath,
-            action = SoapAction.TRANSFER_END,
-            bodyContent = "<ErrCode>0</ErrCode>"
+            path = servicePath, request = TransferEndRequest(0)
         )
     }
 }

@@ -1,18 +1,20 @@
 package com.bobbyesp.imagingedge.data.remote.service
 
 import com.bobbyesp.imagingedge.ImagingEdgeConfig
+import com.bobbyesp.imagingedge.data.remote.model.SoapBody
+import com.bobbyesp.imagingedge.data.remote.model.SoapEnvelope
+import com.bobbyesp.imagingedge.data.remote.soap.SoapBodyBuilder
+import com.bobbyesp.imagingedge.data.remote.soap.requests.SoapRequest
 import com.bobbyesp.imagingedge.domain.SoapAction
 import io.ktor.client.HttpClient
-import io.ktor.client.request.post
 import io.ktor.client.request.header
+import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.serialization.KSerializer
 import nl.adaptivity.xmlutil.serialization.XML
-import com.bobbyesp.imagingedge.data.remote.model.SoapEnvelope
-import com.bobbyesp.imagingedge.data.remote.model.SoapBody
 
 /**
  * Abstract class representing a generic camera service.
@@ -26,70 +28,51 @@ abstract class CameraService(
     protected val httpClient: HttpClient
 ) {
     protected val xmlParser = XML { /* configure if needed */ }
-
-    protected fun buildSoapEnvelope(action: SoapAction, bodyContent: String? = null): String = """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"
-                    s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
-            <s:Body>
-                <u:${action.action} xmlns:u="${action.toString(true)}">
-                    ${bodyContent.orEmpty()}
-                </u:${action.action}>
-            </s:Body>
-        </s:Envelope>
-    """
-
+    protected val soapBodyBuilder = SoapBodyBuilder(xmlParser)
 
     /**
-     * Sends a SOAP request to the specified [path] using the given [action] and returns the raw response.
+     * Sends a SOAP request to the specified [path] using the given [request] and returns the raw response.
+     * This is an alternative to the [callSoap] method that takes a [SoapAction] and [bodyContent] as parameters.
+     * This method is useful when you want to build the SOAP body manually.
      *
      * @param path The path of the resource to send the request to.
-     * @param action The SOAP action to execute.
-     * @param bodyContent Optional content for the body of the SOAP request.
+     * @param request The [SoapRequest] to send.
      * @return The raw response from the SOAP request as a string.
      */
     protected suspend fun callSoap(
         path: String,
-        action: SoapAction,
-        bodyContent: String? = null
+        request: SoapRequest
     ): String {
-        val envelope = buildSoapEnvelope(action, bodyContent)
-        val response = httpClient.post("${config.baseUrl}/$path") {
-            header("SOAPACTION", "\"$action\"")
+        val envelopeXml = soapBodyBuilder.buildSoapBody(request)
+        return httpClient.post("${config.baseUrl}/$path") {
+            header("SOAPACTION", "\"${request.action.namespace}#${request.action.action}\"")
             contentType(ContentType.Text.Xml)
-            setBody(envelope)
+            setBody(envelopeXml)
         }.bodyAsText(Charsets.UTF_8)
-
-        return response
     }
 
     /**
-     * Sends a SOAP request to the specified [path] with the given [action] and optional [bodyContent],
+     * Sends a SOAP request to the specified [path] with the given [request] object,
      * then deserializes the SOAP Body of the response into an object of type [T] using the provided [serializer].
+     * This version of `postFor` is intended for requests where the body content is an object that needs to be serialized to XML.
      *
      * @param T The type to deserialize the SOAP Body content into.
      * @param path The specific path for the camera service endpoint (e.g., "camera", "system").
-     * @param action The SOAP action to be performed.
-     * @param bodyContent Optional XML string content to be included within the SOAP action tags in the request body.
-     * @param serializer The Kotlinx Serialization KSerializer for type [T].
+     * @param request The [SoapRequest] object containing the SOAP action and the content to be serialized into the request body.
+     * @param serializer The Kotlinx Serialization KSerializer for type [T] (the expected response type).
      * @return An instance of [T] deserialized from the SOAP response body.
      */
     protected suspend inline fun <reified T> postFor(
         path: String,
-        action: SoapAction,
-        bodyContent: String? = null,
+        request: SoapRequest,
         serializer: KSerializer<T>
     ): T {
-        val raw = callSoap(path, action, bodyContent)
+        val raw = callSoap(path, request)
         val envelope = xmlParser.decodeFromString(
-            SoapEnvelope.serializer( // The <s:Envelope> wrapper
-                SoapBody.serializer( // The <s:Body> wrapper
-                    serializer // The actual content type (e.g., <u:X_TransferStartResponse> or <u:Browse>)
-                )
-            ),
+            SoapEnvelope.serializer(SoapBody.serializer(serializer)),
             raw
         )
-        if (config.debug) println("SOAP [$action] response content:\n${envelope.Body.content}")
+        if (config.debug) println("SOAP [${request.action}] →\n${envelope.Body.content}")
         return envelope.Body.content.content
     }
 }

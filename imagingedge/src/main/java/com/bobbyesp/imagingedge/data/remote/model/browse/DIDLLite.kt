@@ -1,5 +1,6 @@
-package com.bobbyesp.imagingedge.data.remote.model
+package com.bobbyesp.imagingedge.data.remote.model.browse
 
+import com.bobbyesp.imagingedge.data.remote.model.Container
 import kotlinx.serialization.Serializable
 import nl.adaptivity.xmlutil.serialization.XmlElement
 import nl.adaptivity.xmlutil.serialization.XmlSerialName
