@@ -52,7 +52,6 @@ class DefaultCameraRepository(
      * @param downloadSize Preferred image size
      * @return List of directory entries (folders and items).
      */
-    @Suppress("UNUSED_PARAMETER")
     override suspend fun getDirectoryContent(
         dirId: String,
         downloadSize: DownloadSize?
@@ -63,6 +62,12 @@ class DefaultCameraRepository(
 
     /**
      * Downloads the best available image for the given directory entry.
+     *
+     * @param entry The directory entry representing the image to download.
+     * @param preferredSize The preferred size of the image to download. If null, the size specified in the [ImagingEdgeConfig] will be used.
+     * @param listener An optional listener to track the download progress.
+     * @return The downloaded [File].
+     * @throws DownloadException If an error occurs during the download process.
      */
     @Throws(DownloadException::class)
     override suspend fun downloadImage(
@@ -77,6 +82,12 @@ class DefaultCameraRepository(
 
     /**
      * Downloads multiple images in sequence.
+     *
+     * @param entries List of [DirectoryEntry] objects representing the images to download.
+     * @param preferredSize Optional [DownloadSize] to specify the desired image size. If null, the global config value is used.
+     * @param listener Optional [DownloadProgressListener] to receive progress updates.
+     * @return A list of [File] objects representing the downloaded images.
+     * @throws DownloadException if any error occurs during the download process for any of the images.
      */
     @Throws(DownloadException::class)
     suspend fun downloadImages(

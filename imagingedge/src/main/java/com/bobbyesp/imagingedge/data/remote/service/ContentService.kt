@@ -2,8 +2,7 @@ package com.bobbyesp.imagingedge.data.remote.service
 
 import com.bobbyesp.imagingedge.ImagingEdgeConfig
 import com.bobbyesp.imagingedge.data.remote.model.Container
-import com.bobbyesp.imagingedge.data.remote.model.SoapEnvelope
-import com.bobbyesp.imagingedge.data.remote.model.SoapReturnEnvelope
+import com.bobbyesp.imagingedge.data.remote.model.Envelope
 import com.bobbyesp.imagingedge.data.remote.model.browse.BrowseResponse
 import com.bobbyesp.imagingedge.data.remote.model.browse.Item
 import com.bobbyesp.imagingedge.data.remote.soap.requests.BrowseDirectoryRequest
@@ -48,19 +47,26 @@ class ContentService(
             println("SOAP Response: $soapResponse")
         }
 
-        val response = xmlParser.decodeFromString<SoapReturnEnvelope<BrowseResponse>>(
+        val response = xmlParser.decodeFromString<Envelope<BrowseResponse>>(
             soapResponse
         )
-        val didl = response.body.Result
+        val didl = response.body.data.Result
 
         // Map DTOs to domain entries
         return mutableListOf<DirectoryEntry>().apply {
             didl.container?.forEach { add(it.toDirectoryEntry(isDirectory = true)) }
-            didl.item?.filter { item ->
-                preferredSize == null || item.res.any { res ->
-                    res.protocolInfo?.contains("_${preferredSize.name}") == true
-                }
-            }?.forEach { add(it.toDirectoryEntry(isDirectory = false)) }
+            didl.item?.filter { item -> shouldIncludeItem(item, preferredSize) }
+                ?.forEach { add(it.toDirectoryEntry(isDirectory = false)) }
+        }
+    }
+
+    private fun shouldIncludeItem(item: Item, preferredSize: DownloadSize?): Boolean {
+        if (preferredSize == null) return true
+        return item.res.any { res ->
+            when (preferredSize) {
+                DownloadSize.ORG -> res.url.contains("ORG_")
+                else -> res.protocolInfo?.contains("_${preferredSize.name}") == true
+            }
         }
     }
 
@@ -76,18 +82,26 @@ class ContentService(
         val item = entry.rawXml as? Item
             ?: throw IllegalArgumentException("Entry ${entry.id} does not contain an Item DTO")
 
-        // Choose candidate list based on preferredSize, then pick largest
-        val chosenRes = item.res.let { resolutions ->
-            preferredSize?.let { size ->
-                resolutions.filter { it.protocolInfo?.contains("_${size.name}") == true }
-                    .maxByOrNull { it.size ?: 0 }
-            } ?: resolutions.maxByOrNull { it.size ?: 0 }
-        } ?: throw IllegalStateException("No resolutions for ${entry.title}")
+        val resolutions = item.res
+
+        val chosenRes = if (preferredSize != null) {
+            resolutions.filter {
+                shouldIncludeItem(
+                    item,
+                    preferredSize
+                )
+            } // Renamed 'size' to 'preferredSize' for clarity
+                .maxByOrNull { it.size ?: 0 }
+        } else {
+            resolutions.maxByOrNull { it.size ?: 0 }
+        }
+            ?: throw IllegalStateException("No resolutions found for ${entry.title}") // Improved error message
 
         return ImageFile(
             name = entry.title,
             url = chosenRes.url,
-            size = chosenRes.size ?: -1,
+            size = chosenRes.size
+                ?: -1, // Consider if -1 is the best default or if null is acceptable
             resolution = chosenRes.resolution
         )
     }

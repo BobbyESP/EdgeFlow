@@ -1,11 +1,14 @@
 package com.bobbyesp.imagingedge.data.remote.service
 
 import com.bobbyesp.imagingedge.ImagingEdgeConfig
-import com.bobbyesp.imagingedge.data.remote.model.SoapBody
-import com.bobbyesp.imagingedge.data.remote.model.SoapEnvelope
-import com.bobbyesp.imagingedge.data.remote.model.SoapReturnEnvelope
+import com.bobbyesp.imagingedge.data.remote.model.Envelope
+import com.bobbyesp.imagingedge.data.remote.model.TransferEndResponse
+import com.bobbyesp.imagingedge.data.remote.model.browse.BrowseResponse
 import com.bobbyesp.imagingedge.data.remote.soap.SoapBodyBuilder
+import com.bobbyesp.imagingedge.data.remote.soap.requests.BrowseDirectoryRequest
 import com.bobbyesp.imagingedge.data.remote.soap.requests.SoapRequest
+import com.bobbyesp.imagingedge.data.remote.soap.requests.TransferEndRequest
+import com.bobbyesp.imagingedge.data.remote.soap.requests.TransferStartRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -13,8 +16,9 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.serialization.XML
@@ -30,10 +34,23 @@ abstract class CameraService(
     protected val config: ImagingEdgeConfig,
     protected val httpClient: HttpClient
 ) {
-    protected val xmlParser = XML {
+    private val module = SerializersModule {
+        polymorphic(Any::class) {
+            subclass(BrowseResponse::class, BrowseResponse.serializer())
+
+            //Requests
+            subclass(TransferStartRequest::class, TransferStartRequest.serializer())
+            subclass(TransferEndRequest::class, TransferEndRequest.serializer())
+            subclass(BrowseDirectoryRequest::class, BrowseDirectoryRequest.serializer())
+        }
+    }
+
+    val xmlParser = XML(module) {
         xmlVersion = XmlVersion.XML10
         xmlDeclMode = XmlDeclMode.Charset
+        autoPolymorphic = true
     }
+
 
     protected val soapBodyBuilder = SoapBodyBuilder(xmlParser)
 
@@ -51,9 +68,6 @@ abstract class CameraService(
         request: T
     ): String {
         val envelopeXml = soapBodyBuilder.buildSoapBody(request)
-        if (config.debug) {
-            println("SOAP [${request.action}] →\n$envelopeXml")
-        }
         return httpClient.post("${config.baseUrl}/$path") {
             header("SOAPACTION", "\"${request.action.namespace}#${request.action.action}\"")
             contentType(ContentType.Text.Xml)
@@ -63,23 +77,23 @@ abstract class CameraService(
 
     /**
      * Sends a SOAP request to the specified [path] with the given [request] object,
-     * then deserializes the SOAP Body of the response into an object of type [T] using the provided [serializer].
-     * This version of `postFor` is intended for requests where the body content is an object that needs to be serialized to XML.
+     * then deserializes the SOAP Body of the response into an object of type [T].
+     * This method is a convenience wrapper around [callSoap] that handles the
+     * deserialization of the response envelope and extracts the data from the body.
      *
-     * @param T The type to deserialize the SOAP Body content into.
+     * @param T The type of the [SoapRequest] and the expected type of the data within the SOAP response body.
      * @param path The specific path for the camera service endpoint (e.g., "camera", "system").
-     * @param request The [SoapRequest] object containing the SOAP action and the content to be serialized into the request body.
-     * @return An instance of [T] deserialized from the SOAP response body.
+     * @param request The [SoapRequest] object containing the SOAP action and any necessary request parameters.
+     * @return An instance of [T] deserialized from the SOAP response body's data field.
      */
-    protected suspend inline fun <reified T: SoapRequest> postFor(
+    protected suspend inline fun <reified T : SoapRequest> postFor(
         path: String,
         request: T,
     ): T {
         val raw = callSoap(path, request)
-        val envelope = xmlParser.decodeFromString<SoapReturnEnvelope<T>>(
+        val envelope = xmlParser.decodeFromString<Envelope<T>>(
             raw
         )
-        if (config.debug) println("SOAP [${request.action}] →\n${envelope.body}")
-        return envelope.body
+        return envelope.body.data
     }
 }

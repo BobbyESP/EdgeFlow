@@ -1,38 +1,41 @@
 package com.bobbyesp.imagingedge
 
-import com.bobbyesp.imagingedge.data.remote.model.browse.Browse
+import com.bobbyesp.imagingedge.data.remote.model.Envelope
 import com.bobbyesp.imagingedge.data.remote.model.browse.BrowseResponse
-import kotlinx.serialization.Polymorphic
-import kotlinx.serialization.Serializable
+import com.bobbyesp.imagingedge.data.remote.soap.requests.BrowseDirectoryRequest
+import com.bobbyesp.imagingedge.data.remote.soap.requests.TransferEndRequest
+import com.bobbyesp.imagingedge.data.remote.soap.requests.TransferStartRequest
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
-import kotlinx.serialization.serializer
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.serialization.XML
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
 import org.junit.Test
-import kotlin.reflect.KClass
 
 class SerializationTests {
-    @Suppress("UNCHECKED_CAST")
+
     val module = SerializersModule {
         polymorphic(Any::class) {
-            subclass(BrowseResponse::class as KClass<BrowseResponse>, serializer())
+            subclass(BrowseResponse::class, BrowseResponse.serializer())
+
+            //Requests
+            subclass(TransferStartRequest::class, TransferStartRequest.serializer())
+            subclass(TransferEndRequest::class, TransferEndRequest.serializer())
+            subclass(BrowseDirectoryRequest::class, BrowseDirectoryRequest.serializer())
         }
     }
 
-    val xmlParser = XML(module) {
+    val xml = XML(module) {
         xmlVersion = XmlVersion.XML10
         xmlDeclMode = XmlDeclMode.Charset
+        autoPolymorphic = true
     }
 
     @Test
     fun `Test browse response serialization`() {
-        val xml = """
+        val soapXml = """
             <?xml version="1.0"?>
             <s:Envelope
             	xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -57,62 +60,41 @@ class SerializationTests {
             </s:Envelope>
         """.trimIndent()
 
-        val encoded = xmlParser.decodeFromString<Envelope<BrowseResponse>>(xml)
+        // parse <Envelope><Body><u:BrowseResponse>…
+        val envelope = xml.decodeFromString<Envelope<BrowseResponse>>(soapXml)
+        val browse = envelope.body.data
 
-        println(encoded)
-    }
-}
+        val didl = browse.Result
 
-/**
- * The Envelope class is a very simple implementation of the SOAP Envelope (ignoring existence of headers). The
- * `@XmlSerialName` annotation specifies how the class is to be serialized, including namespace and prefix to try to use
- * (the serializer will try to reuse an existing prefix for the namespace if it already exists in the document).
- *
- * @property body `body` is a property that contains the body of the envelope. It merely wraps the data, but needs to exist
- *      for the purpose of generating the tag.
- * @param BODYTYPE SOAP is a generic protocol and the wrappers should not depend on a particular body data. That is why
- *      the type is parameterized (this works fine with Serialization).
- */
-@Serializable
-@XmlSerialName("Envelope", "http://schemas.xmlsoap.org/soap/envelope/", "S")
-class Envelope<BODYTYPE> private constructor(
-    private val body: Body<BODYTYPE>
-) {
-
-    /**
-     * Actual constructor so users don't need to know about the body element
-     */
-    constructor(data: BODYTYPE) : this(Body(data))
-
-    /**
-     * Accessor to the data property that hides the body element.
-     */
-    val data: BODYTYPE get() = body.data
-
-    override fun toString(): String {
-        return "Envelope(body=$body)"
+        // Inspect results:
+        println("Returned ${browse.NumberReturned} of ${browse.TotalMatches}, UpdateID=${browse.UpdateID}")
+        didl.item?.forEach { item ->
+            println("Item ${item.id}: title='${item.title}', url(s):")
+            item.res.forEach { println("  - ${it.url} (${it.protocolInfo})") }
+        }
     }
 
-    @Serializable
-    @XmlSerialName(
-        value = "encodingStyle",
-        namespace = "http://schemas.xmlsoap.org/soap/envelope/"
-    )
-    private val encodingStyle: String = "http://schemas.xmlsoap.org/soap/encoding/"
+    @Test
+    fun `Encode start transfer request`() {
+        val request = TransferStartRequest
 
-    /**
-     * The body class merely wraps a data element (the SOAP standard requires this to be a single element). There is no
-     * need for this type to specify the serial name explicitly because:
-     *  1. Body is a class, thus serialized as element. The name used is therefore (by default) determined by the name
-     *     of the type (`Body`).
-     *  2. The namespace (and prefix) used for a type is by default the namespace of the containing tag.
-     *  3. Package names are normally elided in the naming
-     *
-     * The content of data is polymorphic to allow for different message types.
-     *
-     * @property data The data property contains the actual message content for the soap message.
-     */
-    @Serializable
-    private data class Body<BODYTYPE>(@Polymorphic @XmlElement val data: BODYTYPE)
+        val xmlString = xml.encodeToString(Envelope(
+            body = Envelope.Body(
+                data = request
+            )
+        ))
+        println("Encoded TransferStartRequest:\n$xmlString")
+    }
 
+    @Test
+    fun `Encode BrowseDirectoryRequest`() {
+        val request = BrowseDirectoryRequest("PushRoot")
+
+        val xmlString = xml.encodeToString(Envelope(
+            body = Envelope.Body(
+                data = request
+            )
+        ))
+        println("Encoded BrowseDirectoryRequest:\n$xmlString")
+    }
 }
