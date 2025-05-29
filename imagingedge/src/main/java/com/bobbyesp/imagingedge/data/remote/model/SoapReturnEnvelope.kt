@@ -10,7 +10,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
     namespace = "http://schemas.xmlsoap.org/soap/envelope/",
     prefix = "s"
 )
-data class SoapEnvelope<T>(
+data class SoapReturnEnvelope<T>(
     // The prefix is automatically added by the library if a higher-level node already has it declared.
     @XmlElement(false)
     @XmlSerialName(
@@ -24,15 +24,5 @@ data class SoapEnvelope<T>(
         value = "Body",
         namespace = "http://schemas.xmlsoap.org/soap/envelope/",
     )
-    val body: SoapBody<T>
-)
-
-@Serializable
-@XmlSerialName(
-    value = "Body",
-    namespace = "http://schemas.xmlsoap.org/soap/envelope/",
-)
-data class SoapBody<T>(
-    @XmlElement
-    val content: T
+    val body: T
 )

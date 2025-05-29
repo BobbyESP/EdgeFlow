@@ -45,7 +45,7 @@ class PushService(
      * and initiate a transfer session.
      */
     suspend fun startTransfer() {
-        callSoap(
+        callSoap<TransferStartRequest>(
             path = servicePath,
             request = TransferStartRequest
         )
@@ -57,7 +57,7 @@ class PushService(
      * The camera will exit transfer mode upon receiving this command.
      */
     suspend fun endTransfer() {
-        callSoap(
+        callSoap<TransferEndRequest>(
             path = servicePath, request = TransferEndRequest(0)
         )
     }

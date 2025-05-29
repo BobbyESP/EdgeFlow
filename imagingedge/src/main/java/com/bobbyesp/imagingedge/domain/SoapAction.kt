@@ -10,9 +10,9 @@ sealed class SoapAction(
     val action: String
         get() = actionName
 
-    data object TRANSFER_START : SoapAction(TransferProtocol.SONY.template, "XPushList", "X_TransferStart")
-    data object TRANSFER_END  : SoapAction(TransferProtocol.SONY.template, "XPushList", "X_TransferEnd")
-    data object CONTENT_DIRECTORY : SoapAction(TransferProtocol.UPNP.template, "ContentDirectory", "Browse")
+    data object TransferStart : SoapAction(TransferProtocol.SONY.template, "XPushList", "X_TransferStart")
+    data object TransferEnd  : SoapAction(TransferProtocol.SONY.template, "XPushList", "X_TransferEnd")
+    data object ContentDirectory : SoapAction(TransferProtocol.UPNP.template, "ContentDirectory", "Browse")
 
     class Custom(
         protocolTemplate: String,

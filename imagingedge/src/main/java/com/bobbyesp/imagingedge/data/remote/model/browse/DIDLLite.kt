@@ -12,6 +12,6 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
     prefix = ""
 )
 data class DIDLLite(
-    @XmlElement(true) val container: List<Container>? = null,
-    @XmlElement(true) val item: List<Item>?      = null
+    @XmlElement val container: List<Container>? = null,
+    @XmlElement val item: List<Item>?      = null
 )

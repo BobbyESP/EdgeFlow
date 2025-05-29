@@ -14,5 +14,5 @@ data class TransferEndRequest(
     val errCode: Int = 0,
 ) : SoapRequest {
     @Transient
-    override val action = SoapAction.TRANSFER_END
+    override val action = SoapAction.TransferEnd
 }

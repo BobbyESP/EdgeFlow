@@ -9,5 +9,5 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("X_TransferStart", "urn:schemas-sony-com:service:XPushList:1", "u")
 data object TransferStartRequest : SoapRequest {
     @Transient
-    override val action = SoapAction.TRANSFER_START
+    override val action = SoapAction.TransferStart
 }

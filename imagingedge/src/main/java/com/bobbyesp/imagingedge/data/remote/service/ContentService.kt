@@ -2,6 +2,8 @@ package com.bobbyesp.imagingedge.data.remote.service
 
 import com.bobbyesp.imagingedge.ImagingEdgeConfig
 import com.bobbyesp.imagingedge.data.remote.model.Container
+import com.bobbyesp.imagingedge.data.remote.model.SoapEnvelope
+import com.bobbyesp.imagingedge.data.remote.model.SoapReturnEnvelope
 import com.bobbyesp.imagingedge.data.remote.model.browse.BrowseResponse
 import com.bobbyesp.imagingedge.data.remote.model.browse.Item
 import com.bobbyesp.imagingedge.data.remote.soap.requests.BrowseDirectoryRequest
@@ -9,6 +11,7 @@ import com.bobbyesp.imagingedge.domain.DownloadSize
 import com.bobbyesp.imagingedge.domain.model.DirectoryEntry
 import com.bobbyesp.imagingedge.domain.model.ImageFile
 import io.ktor.client.HttpClient
+import kotlinx.serialization.decodeFromString
 
 /**
  * Service to browse UPnP ContentDirectory and map results to domain models.
@@ -34,29 +37,23 @@ class ContentService(
     suspend fun browseDirectory(
         objectId: String, startIndex: Int = 0, preferredSize: DownloadSize? = null
     ): List<DirectoryEntry> {
-        // 1) Build and send SOAP request
-//        val envelope = soapBodyBuilder.buildSoapBody(
-//            Browse(
-//                objectId = objectId,
-//                browseFlag = "BrowseDirectChildren",
-//                filter = "*",
-//                startingIndex = startIndex,
-//                requestedCount = 100, // Default page size
-//            )
-//        )
+        // Build and send SOAP request
         val soapResponse = callSoap(
-            path = servicePath,
-            request = BrowseDirectoryRequest(
-                objectId = objectId,
-                startingIndex = startIndex,
-                requestedCount = 100
+            path = servicePath, request = BrowseDirectoryRequest(
+                objectId = objectId, startingIndex = startIndex, requestedCount = 100
             )
         )
 
-        val response = xmlParser.decodeFromString(BrowseResponse.serializer(), soapResponse)
-        val didl = response.Result
+        if (config.debug) {
+            println("SOAP Response: $soapResponse")
+        }
 
-        // 4) Map DTOs to domain entries
+        val response = xmlParser.decodeFromString<SoapReturnEnvelope<BrowseResponse>>(
+            soapResponse
+        )
+        val didl = response.body.Result
+
+        // Map DTOs to domain entries
         return mutableListOf<DirectoryEntry>().apply {
             didl.container?.forEach { add(it.toDirectoryEntry(isDirectory = true)) }
             didl.item?.filter { item ->

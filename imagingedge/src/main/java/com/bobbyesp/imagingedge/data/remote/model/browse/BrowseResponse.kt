@@ -8,12 +8,15 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @XmlSerialName("BrowseResponse", "urn:schemas-upnp-org:service:ContentDirectory:1", "u")
 data class BrowseResponse(
     // The old "ContentDirectoryResult"
-    @XmlElement(true)
+    @XmlElement
     val Result: DIDLLite,
+    @XmlElement
     @XmlSerialName("NumberReturned")
     val NumberReturned: Int,
+    @XmlElement
     @XmlSerialName("TotalMatches")
     val TotalMatches: Int,
+    @XmlElement
     @XmlSerialName("UpdateID")
     val UpdateID: Long
 )

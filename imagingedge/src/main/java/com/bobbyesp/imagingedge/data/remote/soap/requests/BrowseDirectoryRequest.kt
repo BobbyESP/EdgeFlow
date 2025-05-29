@@ -21,5 +21,5 @@ data class BrowseDirectoryRequest(
     @XmlElement(true) @XmlSerialName("SortCriteria", "", "") val sortCriteria: String = "",
 ) : SoapRequest {
     @Transient
-    override val action = SoapAction.CONTENT_DIRECTORY
+    override val action = SoapAction.ContentDirectory
 }
