@@ -1,7 +1,6 @@
-package com.bobbyesp.imagingedge
-
 import com.bobbyesp.imagingedge.data.remote.model.Envelope
 import com.bobbyesp.imagingedge.data.remote.model.browse.BrowseResponse
+import com.bobbyesp.imagingedge.data.remote.model.error.SoapFault
 import com.bobbyesp.imagingedge.data.remote.soap.requests.BrowseDirectoryRequest
 import com.bobbyesp.imagingedge.data.remote.soap.requests.TransferEndRequest
 import com.bobbyesp.imagingedge.data.remote.soap.requests.TransferStartRequest
@@ -12,6 +11,7 @@ import kotlinx.serialization.modules.polymorphic
 import nl.adaptivity.xmlutil.XmlDeclMode
 import nl.adaptivity.xmlutil.core.XmlVersion
 import nl.adaptivity.xmlutil.serialization.XML
+import org.junit.Assert.*
 import org.junit.Test
 
 class SerializationTests {
@@ -19,23 +19,22 @@ class SerializationTests {
     val module = SerializersModule {
         polymorphic(Any::class) {
             subclass(BrowseResponse::class, BrowseResponse.serializer())
-
-            //Requests
+            subclass(SoapFault::class, SoapFault.serializer())
             subclass(TransferStartRequest::class, TransferStartRequest.serializer())
             subclass(TransferEndRequest::class, TransferEndRequest.serializer())
             subclass(BrowseDirectoryRequest::class, BrowseDirectoryRequest.serializer())
         }
     }
 
-    val xml = XML(module) {
+    private val xml = XML(module) {
         xmlVersion = XmlVersion.XML10
         xmlDeclMode = XmlDeclMode.Charset
         autoPolymorphic = true
     }
 
     @Test
-    fun `Test browse response serialization`() {
-        val soapXml = """
+    fun testBrowseResponseDeserialization() {
+        val xmlInput = """
             <?xml version="1.0"?>
             <s:Envelope
             	xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -58,43 +57,101 @@ class SerializationTests {
             		</u:BrowseResponse>
             	</s:Body>
             </s:Envelope>
+
         """.trimIndent()
 
-        // parse <Envelope><Body><u:BrowseResponse>…
-        val envelope = xml.decodeFromString<Envelope<BrowseResponse>>(soapXml)
+        val envelope = xml.decodeFromString<Envelope<BrowseResponse>>(xmlInput)
+
+        assertNotNull("Envelope should not be null", envelope)
+        assertNotNull("Envelope body should not be null", envelope.body)
+
         val browse = envelope.body.data
+        assertNotNull("BrowseResponse data should not be null", browse)
+
+        assertEquals("NumberReturned should be 1", 1, browse.NumberReturned)
+        assertEquals("TotalMatches should be 1", 1, browse.TotalMatches)
+        assertEquals("UpdateID should match", 2089222859L, browse.UpdateID)
 
         val didl = browse.Result
+        assertNotNull("DIDL-Lite Result should not be null", didl)
+        assertNotNull("DIDL items should not be null", didl.item)
+        assertTrue("Should have at least one item", didl.item!!.isNotEmpty())
 
-        // Inspect results:
-        println("Returned ${browse.NumberReturned} of ${browse.TotalMatches}, UpdateID=${browse.UpdateID}")
-        didl.item?.forEach { item ->
-            println("Item ${item.id}: title='${item.title}', url(s):")
-            item.res.forEach { println("  - ${it.url} (${it.protocolInfo})") }
-        }
+        val item = didl.item.first()
+        assertEquals("Item ID should match", "04_02_0000150688_000005_000003_000000", item.id)
+        assertEquals("Item title should match", "DSC00636.JPG", item.title)
+        assertTrue("Should have resources", item.res.isNotEmpty())
     }
 
     @Test
-    fun `Encode start transfer request`() {
-        val request = TransferStartRequest
-
-        val xmlString = xml.encodeToString(Envelope(
-            body = Envelope.Body(
-                data = request
-            )
-        ))
-        println("Encoded TransferStartRequest:\n$xmlString")
-    }
-
-    @Test
-    fun `Encode BrowseDirectoryRequest`() {
+    fun testBrowseDirectoryRequestSerialization() {
         val request = BrowseDirectoryRequest("PushRoot")
 
-        val xmlString = xml.encodeToString(Envelope(
-            body = Envelope.Body(
-                data = request
+        val xmlString = xml.encodeToString(
+            Envelope(
+                body = Envelope.Body(
+                    data = request
+                )
             )
-        ))
+        )
+
         println("Encoded BrowseDirectoryRequest:\n$xmlString")
+
+        assertNotNull("Encoded XML string should not be null", xmlString)
+        assertTrue("XML should contain s:Envelope", xmlString.contains("<s:Envelope"))
+        assertTrue("XML should contain s:Body", xmlString.contains("<s:Body"))
+        assertTrue("XML should contain u:Browse tag", xmlString.contains("<u:Browse"))
+        assertTrue(
+            "XML should contain ObjectID",
+            xmlString.contains("<ObjectID>PushRoot</ObjectID>")
+        )
+        assertTrue(
+            "XML should contain BrowseFlag",
+            xmlString.contains("<BrowseFlag>BrowseDirectChildren</BrowseFlag>")
+        )
+        assertTrue("XML should close u:Browse tag", xmlString.contains("</u:Browse>"))
+        assertTrue("XML should close s:Envelope", xmlString.contains("</s:Envelope>"))
+    }
+
+    @Test
+    fun testSoapFaultDeserialization() {
+        val faultXml = """
+            <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+                <s:Body>
+                    <s:Fault>
+                        <faultcode>s:Client</faultcode>
+                        <faultstring>UPnPError</faultstring>
+                        <detail>
+                            <UPnPError xmlns="urn:schemas-upnp-org:control-1-0">
+                                <errorCode>506</errorCode>
+                                <errorDescription>Action Failed</errorDescription>
+                            </UPnPError>
+                        </detail>
+                    </s:Fault>
+                </s:Body>
+            </s:Envelope>
+        """.trimIndent()
+
+        val envelope = xml.decodeFromString<Envelope<SoapFault>>(faultXml)
+
+        assertNotNull("Envelope should not be null", envelope)
+        assertNotNull("Envelope body should not be null", envelope.body)
+        assertNotNull("Envelope body data should not be null", envelope.body.data)
+
+        assertTrue("Body data should be SoapFault", true)
+
+        val soapFault = envelope.body.data
+        assertEquals("Faultcode should be s:Client", "s:Client", soapFault.faultCode)
+        assertEquals("Faultstring should be UPnPError", "UPnPError", soapFault.faultString)
+
+        assertNotNull("Fault detail should not be null", soapFault.detail)
+        val upnpError = soapFault.detail.error
+        assertNotNull("UPnPError should not be null", upnpError)
+        assertEquals("UPnPError errorCode should be 506", 506, upnpError.errorCode)
+        assertEquals(
+            "UPnPError errorDescription should be Action Failed",
+            "Action Failed",
+            upnpError.errorDescription
+        )
     }
 }

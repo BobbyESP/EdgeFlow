@@ -1,10 +1,10 @@
 package com.bobbyesp.imagingedge.data.remote.downloader
 
-import android.util.Log
 import com.bobbyesp.imagingedge.data.remote.downloader.exceptions.DownloadException
 import com.bobbyesp.imagingedge.data.remote.downloader.exceptions.SizeMismatchException
 import com.bobbyesp.imagingedge.domain.DownloadProgressListener
 import com.bobbyesp.imagingedge.domain.model.ImageFile
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.onDownload
 import io.ktor.client.request.get
@@ -18,25 +18,22 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
+private val logger = KotlinLogging.logger { }
+
 class FileDownloader(
     private val outputRootDir: File,
     private val httpClient: HttpClient,
 ) {
-
-    private val debug = true
+    private val debug = true // Set to false in production
 
     @Throws(DownloadException::class)
     suspend fun download(
-        image: ImageFile,
-        listener: DownloadProgressListener? = null
+        image: ImageFile, listener: DownloadProgressListener? = null
     ): File = withContext(Dispatchers.IO) {
         val targetFile = getTargetFile(image)
 
         if (targetFile.exists() && image.size > 0 && targetFile.length() == image.size) {
-            if (debug) Log.d(
-                this@FileDownloader::class.simpleName,
-                "Skip existing file: ${targetFile.absolutePath}"
-            )
+            if (debug) logger.debug { "File already exists: ${targetFile.absolutePath}" }
             return@withContext targetFile
         }
 
@@ -44,14 +41,20 @@ class FileDownloader(
 
         try {
             val response: HttpResponse = httpClient.get(image.url) {
-                onDownload(listener = { bytesSentTotal, contentLength ->
-                    if (debug) {
-                        Log.d(
-                            this@FileDownloader::class.simpleName,
-                            "Downloading ${image.url}: $bytesSentTotal / $contentLength bytes"
-                        )
-                    }
-                })
+                if (debug) {
+                    onDownload(listener = { bytesSentTotal, contentLength ->
+                        val percentage = contentLength?.let {
+                            if (it > 0) {
+                                (bytesSentTotal * 100 / contentLength).toInt()
+                            } else {
+                                -1 // Unknown size
+                            }
+                        }
+                        logger.debug {
+                            "Downloading ($percentage% - $bytesSentTotal/$contentLength) ${image.url}"
+                        }
+                    })
+                }
             }
 
             if (response.status != HttpStatusCode.OK) {
@@ -61,10 +64,9 @@ class FileDownloader(
             val contentLength = response.contentLength() ?: -1
             val body = response.bodyAsChannel()
 
-            if (debug) Log.d(
-                this@FileDownloader::class.simpleName,
-                "Downloading: ${image.url} -> ${targetFile.absolutePath}"
-            )
+            if (debug) logger.debug {
+                "Starting download of ${image.url} to ${targetFile.absolutePath} (expected size: $contentLength bytes)"
+            }
 
             FileOutputStream(targetFile).use { output ->
                 val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
@@ -81,8 +83,7 @@ class FileDownloader(
 
                 if (contentLength > 0 && totalRead != contentLength) {
                     throw SizeMismatchException(
-                        expectedSize = contentLength,
-                        actualSize = totalRead
+                        expectedSize = contentLength, actualSize = totalRead
                     )
                 }
             }

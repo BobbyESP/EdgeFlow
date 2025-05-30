@@ -4,11 +4,13 @@ import com.bobbyesp.imagingedge.ImagingEdgeConfig
 import com.bobbyesp.imagingedge.data.remote.model.Envelope
 import com.bobbyesp.imagingedge.data.remote.model.TransferEndResponse
 import com.bobbyesp.imagingedge.data.remote.model.browse.BrowseResponse
+import com.bobbyesp.imagingedge.data.remote.model.error.SoapFault
 import com.bobbyesp.imagingedge.data.remote.soap.SoapBodyBuilder
 import com.bobbyesp.imagingedge.data.remote.soap.requests.BrowseDirectoryRequest
 import com.bobbyesp.imagingedge.data.remote.soap.requests.SoapRequest
 import com.bobbyesp.imagingedge.data.remote.soap.requests.TransferEndRequest
 import com.bobbyesp.imagingedge.data.remote.soap.requests.TransferStartRequest
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -34,9 +36,15 @@ abstract class CameraService(
     protected val config: ImagingEdgeConfig,
     protected val httpClient: HttpClient
 ) {
+    protected val logger = KotlinLogging.logger(this::class.simpleName ?: "CameraService")
+
     private val module = SerializersModule {
+        // The base class has to be Any because XML Util is not able to handle polymorphic serialization
+        // with a sealed class / interface hierarchy, so we use Any as the base type.
         polymorphic(Any::class) {
+            // Responses
             subclass(BrowseResponse::class, BrowseResponse.serializer())
+            subclass(SoapFault::class, SoapFault.serializer())
 
             //Requests
             subclass(TransferStartRequest::class, TransferStartRequest.serializer())
@@ -50,7 +58,6 @@ abstract class CameraService(
         xmlDeclMode = XmlDeclMode.Charset
         autoPolymorphic = true
     }
-
 
     protected val soapBodyBuilder = SoapBodyBuilder(xmlParser)
 

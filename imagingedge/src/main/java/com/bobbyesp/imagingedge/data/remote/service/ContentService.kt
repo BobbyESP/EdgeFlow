@@ -43,10 +43,6 @@ class ContentService(
             )
         )
 
-        if (config.debug) {
-            println("SOAP Response: $soapResponse")
-        }
-
         val response = xmlParser.decodeFromString<Envelope<BrowseResponse>>(
             soapResponse
         )

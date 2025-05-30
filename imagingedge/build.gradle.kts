@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.xmlutil)
     implementation(libs.xmlutil.serialization)
     implementation(libs.bundles.ktor)
+    implementation(libs.kotlin.logging)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

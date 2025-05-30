@@ -1,18 +1,18 @@
 package com.bobbyesp.imagingedge
 
-import io.ktor.client.engine.android.Android
 import com.bobbyesp.imagingedge.data.remote.DefaultCameraRepository
+import com.bobbyesp.imagingedge.data.remote.downloader.exceptions.DownloadException
+import com.bobbyesp.imagingedge.domain.DownloadProgressListener
 import com.bobbyesp.imagingedge.domain.DownloadSize
 import com.bobbyesp.imagingedge.domain.model.DirectoryEntry
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
-import com.bobbyesp.imagingedge.data.remote.downloader.exceptions.DownloadException
-import com.bobbyesp.imagingedge.domain.DownloadProgressListener
 
 class ImagingEdgeClient(
     private val config: ImagingEdgeConfig,
-    private val httpClient: HttpClient = HttpClient(Android) {
+    private val httpClient: HttpClient = HttpClient(OkHttp) {
         install(Logging) { level = if (config.debug) LogLevel.ALL else LogLevel.NONE }
     },
     private val repository: DefaultCameraRepository = DefaultCameraRepository(config, httpClient)

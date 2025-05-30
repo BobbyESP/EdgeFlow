@@ -7,7 +7,10 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
 @Serializable
 @XmlSerialName("Fault", "http://schemas.xmlsoap.org/soap/envelope/", "s")
 data class SoapFault(
-    @XmlSerialName("faultcode") val faultCode: String,
-    @XmlSerialName("faultstring") val faultString: String,
-    @XmlElement(true) val detail: FaultDetail
+    @XmlElement(true)
+    @XmlSerialName("faultcode", "", "") val faultCode: String,
+    @XmlElement(true)
+    @XmlSerialName("faultstring", "", "") val faultString: String,
+    @XmlElement(true)
+    val detail: FaultDetail
 )
