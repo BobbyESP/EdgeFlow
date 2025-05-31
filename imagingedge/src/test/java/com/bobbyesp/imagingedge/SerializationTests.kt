@@ -68,11 +68,11 @@ class SerializationTests {
         val browse = envelope.body.data
         assertNotNull("BrowseResponse data should not be null", browse)
 
-        assertEquals("NumberReturned should be 1", 1, browse.NumberReturned)
-        assertEquals("TotalMatches should be 1", 1, browse.TotalMatches)
-        assertEquals("UpdateID should match", 2089222859L, browse.UpdateID)
+        assertEquals("NumberReturned should be 1", 1, browse.resultCount)
+        assertEquals("TotalMatches should be 1", 1, browse.totalMatches)
+        assertEquals("UpdateID should match", 2089222859L, browse.lastUpdateId)
 
-        val didl = browse.Result
+        val didl = browse.result
         assertNotNull("DIDL-Lite Result should not be null", didl)
         assertNotNull("DIDL items should not be null", didl.item)
         assertTrue("Should have at least one item", didl.item!!.isNotEmpty())

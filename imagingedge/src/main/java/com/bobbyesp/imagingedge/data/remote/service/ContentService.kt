@@ -46,7 +46,7 @@ class ContentService(
         val response = xmlParser.decodeFromString<Envelope<BrowseResponse>>(
             soapResponse
         )
-        val didl = response.body.data.Result
+        val didl = response.body.data.result
 
         // Map DTOs to domain entries
         return mutableListOf<DirectoryEntry>().apply {

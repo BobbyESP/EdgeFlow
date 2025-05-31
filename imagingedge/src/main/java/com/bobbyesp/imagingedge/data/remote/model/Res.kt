@@ -9,9 +9,13 @@ import nl.adaptivity.xmlutil.serialization.XmlValue
  * Represents a resource element in a DIDL-Lite document, typically used in UPnP (Universal Plug and Play) scenarios.
  * This class encapsulates information about a media resource, such as its URL, resolution, size, and protocol information.
  *
- * @property resolution The resolution of the media resource (e.g., "1920x1080"). This is optional.
- * @property size The size of the media resource in bytes. This is optional.
  * @property protocolInfo Information about the protocol used to access the media resource (e.g., "http-get:*:image/jpeg:*"). This is optional.
+ * @property size The size of the media resource in bytes. This is optional.
+ * @property duration The duration of the media resource (e.g., "0:00:30.000"). This is optional.
+ * @property resolution The resolution of the media resource (e.g., "1920x1080"). This is optional.
+ * @property avcProfile The AVC (Advanced Video Coding) profile of the video resource. This is optional.
+ * @property avcLevel The AVC (Advanced Video Coding) level of the video resource. This is optional.
+ * @property filename The original filename of the media resource. This is optional.
  * @property url The URL from which the media resource can be accessed. This is a required field.
  */
 @Serializable

@@ -16,6 +16,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
  * @property upnpClass The UPnP class of the item, indicating its type (e.g., "object.item.imageItem").
  * @property contentType The specific content type of the item, often a MIME type (e.g., "image/jpeg"). This uses the Sony AV namespace.
  * @property date The date associated with the item, typically its creation or modification date. Corresponds to the Dublin Core "date" element.
+ * @property genre The genre of the item, if applicable. This is optional and may not be present for all items. Videos often show "Movie" as the genre, while images may not have a genre specified.
  * @property res A list of [com.bobbyesp.imagingedge.data.remote.model.Res] objects, representing the resources associated with this item (e.g., different versions or resolutions of a media file).
  */
 @Serializable
