@@ -37,6 +37,9 @@ data class Item(
     @XmlElement @XmlSerialName("date", "http://purl.org/dc/elements/1.1/", "dc")
     val date: String,
 
+    @XmlElement @XmlSerialName("genre", "urn:schemas-upnp-org:metadata-1-0/upnp/")
+    val genre: String? = null,
+
     @XmlElement @XmlSerialName("res", "urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/", "")
     val res: List<Res>
 )

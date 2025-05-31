@@ -23,7 +23,7 @@ class ContentService(
 ) : CameraService(
     config = config, httpClient = httpClient
 ) {
-    private val servicePath = "upnp/control/ContentDirectory"
+    override val servicePath = "upnp/control/ContentDirectory"
 
     /**
      * Browse a directory by its [objectId], returning a list of [DirectoryEntry].

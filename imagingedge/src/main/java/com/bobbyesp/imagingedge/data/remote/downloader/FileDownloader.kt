@@ -24,9 +24,25 @@ class FileDownloader(
     private val outputRootDir: File,
     private val httpClient: HttpClient,
 ) {
-    private val debug = true // Set to false in production
+    private val debug = true
 
-    @Throws(DownloadException::class)
+    /**
+     * Downloads an image file.
+     *
+     * This function attempts to download an image from the URL specified in the [image] object.
+     * It first checks if the file already exists locally and if its size matches the expected size.
+     * If so, it returns the existing file. Otherwise, it proceeds to download the file.
+     *
+     * During the download, it reports progress via the optional [listener].
+     * If the download is successful, it returns the [File] object representing the downloaded image.
+     *
+     * @param image The [ImageFile] object containing the URL and expected size of the image.
+     * @param listener An optional [DownloadProgressListener] to receive progress updates.
+     * @return The [File] object of the downloaded image.
+     * @throws DownloadException if an error occurs during the download process (e.g., network error, unexpected HTTP status).
+     * @throws SizeMismatchException if the downloaded file size does not match the expected content length.
+     */
+    @Throws(DownloadException::class, SizeMismatchException::class)
     suspend fun download(
         image: ImageFile, listener: DownloadProgressListener? = null
     ): File = withContext(Dispatchers.IO) {

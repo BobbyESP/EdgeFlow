@@ -22,7 +22,7 @@ class PushService(
     config: ImagingEdgeConfig, httpClient: HttpClient
 ) : CameraService(config, httpClient) {
 
-    private val servicePath = "upnp/control/XPushList"
+    override val servicePath = "upnp/control/XPushList"
 
     /**
      * Retrieves the Push Service Descriptor (DmsDescPush.xml) from the camera.

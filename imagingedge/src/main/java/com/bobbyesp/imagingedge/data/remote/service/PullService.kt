@@ -5,4 +5,7 @@ import io.ktor.client.HttpClient
 
 class PullService(
     config: ImagingEdgeConfig, httpClient: HttpClient
-) : CameraService(config, httpClient) {}
+) : CameraService(config, httpClient) {
+    override val servicePath: String
+        get() = TODO("Not yet implemented")
+}

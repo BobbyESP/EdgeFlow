@@ -17,8 +17,12 @@ import nl.adaptivity.xmlutil.serialization.XmlValue
 @Serializable
 @XmlSerialName("res", "urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/", "")
 data class Res(
-    @XmlElement(false) val resolution: String? = null,
-    @XmlElement(false) val size: Long?       = null,
     @XmlElement(false) val protocolInfo: String? = null,
+    @XmlElement(false) val size: Long?       = null,
+    @XmlElement(false) val duration: String? = null,
+    @XmlElement(false) val resolution: String? = null,
+    @XmlElement(false) @XmlSerialName("avc_profile") val avcProfile: String? = null,
+    @XmlElement(false) @XmlSerialName("avc_level") val avcLevel: String? = null,
+    @XmlElement(false) @XmlSerialName("file_name") val filename: String? = null,
     @XmlValue           val url: String
 )

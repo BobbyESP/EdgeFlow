@@ -2,7 +2,6 @@ package com.bobbyesp.imagingedge.data.remote.service
 
 import com.bobbyesp.imagingedge.ImagingEdgeConfig
 import com.bobbyesp.imagingedge.data.remote.model.Envelope
-import com.bobbyesp.imagingedge.data.remote.model.TransferEndResponse
 import com.bobbyesp.imagingedge.data.remote.model.browse.BrowseResponse
 import com.bobbyesp.imagingedge.data.remote.model.error.SoapFault
 import com.bobbyesp.imagingedge.data.remote.soap.SoapBodyBuilder
@@ -37,6 +36,8 @@ abstract class CameraService(
     protected val httpClient: HttpClient
 ) {
     protected val logger = KotlinLogging.logger(this::class.simpleName ?: "CameraService")
+
+    abstract val servicePath: String
 
     private val module = SerializersModule {
         // The base class has to be Any because XML Util is not able to handle polymorphic serialization

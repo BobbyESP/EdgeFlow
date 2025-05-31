@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.ksp)
 }
 
 android {
@@ -40,6 +41,7 @@ dependencies {
     implementation(libs.xmlutil.serialization)
     implementation(libs.bundles.ktor)
     implementation(libs.kotlin.logging)
+    implementation(libs.ksp.symbol.processing.api)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
